@@ -4,9 +4,11 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import colors from "colors";
+import authRoutes from "./routes/authRoute.js";
 
 import dotenv from "dotenv";
-import { mongoConnect } from "./db/Database.js";
+import { mongoConnect } from "./config/Database.js";
 dotenv.config();
 
 //handalling uncaught request (exception)
@@ -29,10 +31,20 @@ app.use(morgan("dev"));
 //db config
 mongoConnect();
 
+//routes
+app.use("/api/v1/auth", authRoutes);
+
+//rest api
+app.get("/", (req, res) => {
+  res.send({
+    message: "welcome to ecommerce app",
+  });
+});
+
 //for all the traffic
 app.use("*", (req, res, next) => {
   const error = {
-    status: error,
+    status: "error",
     message: "404 page not found",
   };
   next(error);
@@ -57,7 +69,10 @@ app.use((error, req, res, next) => {
 
 //create server
 const server = app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(
+    `Server is running on ${process.env.DEV_MODE} http://localhost:${PORT}`
+      .bgBlue.white
+  );
 });
 
 //unhandle promise rejection
